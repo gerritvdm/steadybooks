@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/SteadyBooks/.vs
+/SteadyBooks/SteadyBooks/obj
+/SteadyBooks/SteadyBooks/bin/Debug/net10.0
+*.user
