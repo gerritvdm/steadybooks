@@ -3,18 +3,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using SteadyBooks.Models;
 
 namespace SteadyBooks.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger)
         {
             _userManager = userManager;
@@ -44,6 +45,16 @@ namespace SteadyBooks.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; } = default!;
+
+            [Required]
+            [StringLength(200)]
+            [Display(Name = "Firm Name")]
+            public string FirmName { get; set; } = default!;
+
+            [Required]
+            [EmailAddress]
+            [Display(Name = "Primary Contact Email")]
+            public string PrimaryContactEmail { get; set; } = default!;
         }
 
         public async Task OnGetAsync(string? returnUrl = null)
@@ -56,7 +67,13 @@ namespace SteadyBooks.Areas.Identity.Pages.Account
             returnUrl ??= Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var user = new ApplicationUser
+                {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    FirmName = Input.FirmName,
+                    PrimaryContactEmail = Input.PrimaryContactEmail
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

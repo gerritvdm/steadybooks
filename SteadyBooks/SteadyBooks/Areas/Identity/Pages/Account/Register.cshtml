@@ -18,6 +18,16 @@
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
+                <input asp-for="Input.FirmName" class="form-control" aria-required="true" placeholder="Your Firm Name" />
+                <label asp-for="Input.FirmName">Firm Name</label>
+                <span asp-validation-for="Input.FirmName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.PrimaryContactEmail" class="form-control" autocomplete="email" aria-required="true" placeholder="contact@example.com" />
+                <label asp-for="Input.PrimaryContactEmail">Primary Contact Email</label>
+                <span asp-validation-for="Input.PrimaryContactEmail" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
                 <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
                 <label asp-for="Input.Password">Password</label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
