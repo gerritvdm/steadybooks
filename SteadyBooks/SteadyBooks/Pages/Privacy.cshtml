@@ -3,6 +3,145 @@
 @{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <h1>@ViewData["Title"]</h1>
+        <p class="text-muted"><small>Last updated: January 2025</small></p>
+
+        <div class="mt-4">
+            <h2>1. Overview</h2>
+            <p>
+                SteadyBooks ("we," "us," or "our") provides white-labeled, read-only financial dashboards for accountants and their clients.
+                We take your privacy seriously and are committed to protecting your personal information and financial data.
+            </p>
+
+            <h2 class="mt-4">2. Information We Collect</h2>
+            <h4>2.1 Information You Provide</h4>
+            <ul>
+                <li><strong>Account Information:</strong> When you register, we collect your email, firm name, and primary contact email.</li>
+                <li><strong>Firm Branding:</strong> Logo, brand colors, and footer messages you choose to upload.</li>
+            </ul>
+
+            <h4>2.2 Information from QuickBooks Online</h4>
+            <ul>
+                <li><strong>Read-Only Financial Data:</strong> We access financial data from QuickBooks Online with your authorization, including:
+                    <ul>
+                        <li>Account balances</li>
+                        <li>Profit and loss information</li>
+                        <li>Tax liability information</li>
+                        <li>Outstanding invoice data</li>
+                    </ul>
+                </li>
+                <li><strong>Company Information:</strong> Company name and QuickBooks company ID</li>
+            </ul>
+
+            <h4>2.3 Automatically Collected Information</h4>
+            <ul>
+                <li>Usage data, including pages visited and features used</li>
+                <li>Device information, IP addresses, and browser type</li>
+                <li>Timestamps of client dashboard views</li>
+            </ul>
+
+            <h2 class="mt-4">3. How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <ul>
+                <li>Provide and maintain the SteadyBooks service</li>
+                <li>Display financial dashboards to your clients</li>
+                <li>Apply your firm's branding to client dashboards</li>
+                <li>Send service-related notifications and updates</li>
+                <li>Improve and optimize our service</li>
+                <li>Ensure security and prevent fraud</li>
+                <li>Comply with legal obligations</li>
+            </ul>
+
+            <h2 class="mt-4">4. Data Sharing and Disclosure</h2>
+            <p><strong>We do not sell your data.</strong> We only share information in the following circumstances:</p>
+            <ul>
+                <li><strong>With Your Clients:</strong> Financial data is shared with clients you explicitly authorize via secure dashboard links</li>
+                <li><strong>Service Providers:</strong> Third-party services that help us operate (e.g., hosting, email delivery)</li>
+                <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
+                <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or sale of assets</li>
+            </ul>
+
+            <h2 class="mt-4">5. QuickBooks Online Integration</h2>
+            <p><strong>Read-Only Access:</strong> SteadyBooks only requests <strong>read-only</strong> access to QuickBooks Online data. We cannot and will not:</p>
+            <ul>
+                <li>Modify any financial records</li>
+                <li>Create new transactions</li>
+                <li>Delete any data</li>
+                <li>Access banking credentials</li>
+            </ul>
+            <p>
+                <strong>Token Storage:</strong> QuickBooks access tokens are encrypted and stored securely. 
+                You can revoke our access at any time through your QuickBooks account settings or within SteadyBooks.
+            </p>
+
+            <h2 class="mt-4">6. Data Security</h2>
+            <p>We implement industry-standard security measures to protect your data:</p>
+            <ul>
+                <li>Encrypted data transmission (SSL/TLS)</li>
+                <li>Encrypted storage of sensitive information</li>
+                <li>Secure authentication and password hashing</li>
+                <li>Regular security audits and updates</li>
+                <li>Access controls and monitoring</li>
+            </ul>
+
+            <h2 class="mt-4">7. Data Retention</h2>
+            <ul>
+                <li><strong>Active Accounts:</strong> We retain your data while your account is active</li>
+                <li><strong>Deleted Accounts:</strong> Data is retained for 30 days after account deletion, then permanently removed</li>
+                <li><strong>Financial Snapshots:</strong> Dashboard snapshots are retained for historical record-keeping unless you request deletion</li>
+            </ul>
+
+            <h2 class="mt-4">8. Your Rights</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li><strong>Access:</strong> Request a copy of your personal data</li>
+                <li><strong>Correction:</strong> Update or correct your information</li>
+                <li><strong>Deletion:</strong> Request deletion of your account and data</li>
+                <li><strong>Export:</strong> Request an export of your data</li>
+                <li><strong>Revoke Access:</strong> Disconnect QuickBooks integration at any time</li>
+            </ul>
+
+            <h2 class="mt-4">9. Cookies and Tracking</h2>
+            <p>We use cookies and similar technologies to:</p>
+            <ul>
+                <li>Maintain your login session</li>
+                <li>Remember your preferences</li>
+                <li>Analyze usage patterns</li>
+            </ul>
+            <p>You can control cookies through your browser settings.</p>
+
+            <h2 class="mt-4">10. Client Dashboard Access</h2>
+            <p>
+                Client dashboard links are generated with secure, unguessable tokens. These links can be password-protected 
+                for additional security. You can regenerate or revoke access links at any time.
+            </p>
+
+            <h2 class="mt-4">11. Changes to This Policy</h2>
+            <p>
+                We may update this Privacy Policy from time to time. We will notify you of significant changes via email 
+                or through a prominent notice in the application.
+            </p>
+
+            <h2 class="mt-4">12. Contact Us</h2>
+            <p>
+                If you have questions about this Privacy Policy or how we handle your data, please contact us at:
+            </p>
+            <p>
+                <strong>Email:</strong> privacy@steadybooks.com<br>
+                <strong>Support:</strong> support@steadybooks.com
+            </p>
+
+            <h2 class="mt-4">13. Compliance</h2>
+            <p>
+                SteadyBooks complies with applicable data protection laws and Intuit's security requirements for QuickBooks Online integrations.
+            </p>
+        </div>
+
+        <div class="mt-5 mb-5">
+            <a asp-area="" asp-page="/Index" class="btn btn-outline-primary">Return to Home</a>
+        </div>
+    </div>
+</div>

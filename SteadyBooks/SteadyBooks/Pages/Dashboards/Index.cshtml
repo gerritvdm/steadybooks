@@ -1,0 +1,46 @@
+@page
+@model SteadyBooks.Pages.Dashboards.IndexModel
+@{
+    ViewData["Title"] = "My Dashboards";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-1">My Dashboards</h1>
+                    <p class="text-muted mb-0">Manage client financial dashboards</p>
+                </div>
+                <button class="btn btn-primary" disabled>
+                    <i class="bi bi-plus-lg me-2"></i>Create Dashboard
+                </button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-clipboard-data text-muted" viewBox="0 0 16 16">
+                            <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
+                        </svg>
+                    </div>
+                    <h5>Coming Soon!</h5>
+                    <p class="text-muted mb-4">
+                        Dashboard management will be available in Sprint 3.<br>
+                        You'll be able to create and manage client dashboards here.
+                    </p>
+                    <div class="alert alert-info d-inline-block text-start">
+                        <strong>Next Steps:</strong>
+                        <ol class="mb-0 mt-2 ps-3">
+                            <li>Complete your <a asp-page="/Firm/Settings" class="alert-link">Firm Settings</a></li>
+                            <li>Connect to QuickBooks Online (Coming Soon)</li>
+                            <li>Create your first client dashboard</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

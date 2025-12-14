@@ -26,7 +26,8 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
 });
 
 // Add Identity
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
+    options.SignIn.RequireConfirmedAccount = false)  // Set to false for development
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Add Polly Resilience Services
@@ -35,6 +36,9 @@ builder.Services.AddScoped<IHttpClientService, HttpClientService>();
 
 // Add Generic Repository
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+// Add File Upload Service
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
 // Add HttpClient with Polly policies
 builder.Services.AddHttpClient("SteadyBooksClient")

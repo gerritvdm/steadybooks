@@ -1,0 +1,246 @@
+@page
+@model SteadyBooks.Pages.Firm.SettingsModel
+@{
+    ViewData["Title"] = "Firm Settings";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Settings Form Section -->
+        <div class="col-lg-8 col-xl-7">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-1">Firm Settings</h1>
+                    <p class="text-muted mb-0">Customize your firm's branding for client dashboards</p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>@Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Firm Information Section -->
+                        <h5 class="mb-3">Firm Information</h5>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Input.FirmName" class="form-label">Firm Name</label>
+                            <input asp-for="Input.FirmName" class="form-control" placeholder="e.g., Smith & Associates Accounting" />
+                            <span asp-validation-for="Input.FirmName" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.PrimaryContactEmail" class="form-label">Primary Contact Email</label>
+                                <input asp-for="Input.PrimaryContactEmail" class="form-control" type="email" placeholder="contact@yourfirm.com" />
+                                <div class="form-text">Shown to clients for support inquiries</div>
+                                <span asp-validation-for="Input.PrimaryContactEmail" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.ContactPhone" class="form-label">Contact Phone <span class="text-muted">(Optional)</span></label>
+                                <input asp-for="Input.ContactPhone" class="form-control" type="tel" placeholder="(555) 123-4567" />
+                                <span asp-validation-for="Input.ContactPhone" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Branding Section -->
+                        <h5 class="mb-3">Client Dashboard Branding</h5>
+
+                        <!-- Logo Upload -->
+                        <div class="mb-4">
+                            <label class="form-label">Firm Logo</label>
+                            
+                            @if (!string.IsNullOrEmpty(Model.Input.CurrentLogoPath))
+                            {
+                                <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                    <img src="@Model.Input.CurrentLogoPath" alt="Current logo" class="me-3" style="max-height: 60px; max-width: 200px; object-fit: contain;" />
+                                    <div class="flex-grow-1">
+                                        <p class="mb-0 small text-muted">Current logo</p>
+                                    </div>
+                                    <button type="submit" asp-page-handler="RemoveLogo" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                </div>
+                            }
+
+                            <div class="input-group">
+                                <input asp-for="Input.LogoFile" class="form-control" type="file" accept=".png,.jpg,.jpeg,.svg" />
+                            </div>
+                            <div class="form-text">PNG, JPG, or SVG. Max 2MB. Recommended: 200x60px</div>
+                            <span asp-validation-for="Input.LogoFile" class="text-danger"></span>
+                        </div>
+
+                        <!-- Brand Color -->
+                        <div class="mb-4">
+                            <label asp-for="Input.BrandColor" class="form-label">Brand Color</label>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto">
+                                    <input asp-for="Input.BrandColor" class="form-control form-control-color" type="color" style="width: 80px; height: 45px;" />
+                                </div>
+                                <div class="col">
+                                    <input asp-for="Input.BrandColor" class="form-control" type="text" placeholder="#667eea" pattern="^#[0-9A-Fa-f]{6}$" />
+                                </div>
+                            </div>
+                            <div class="form-text">Primary color used in client dashboards</div>
+                            <span asp-validation-for="Input.BrandColor" class="text-danger"></span>
+                        </div>
+
+                        <!-- Footer Message -->
+                        <div class="mb-4">
+                            <label asp-for="Input.FooterMessage" class="form-label">Dashboard Footer Message <span class="text-muted">(Optional)</span></label>
+                            <textarea asp-for="Input.FooterMessage" class="form-control" rows="2" placeholder="e.g., Prepared by Smith & Associates Accounting"></textarea>
+                            <div class="form-text">Displayed at the bottom of client dashboards</div>
+                            <span asp-validation-for="Input.FooterMessage" class="text-danger"></span>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-lg me-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="col-lg-4 col-xl-5">
+            <div class="sticky-lg-top" style="top: 20px;">
+                <h5 class="mb-3">Client Dashboard Preview</h5>
+                <div class="card shadow-sm">
+                    <div class="card-header text-white" id="previewHeader" style="background-color: @((Model.Input?.BrandColor) ?? "#667eea");">
+                        <div class="d-flex align-items-center justify-content-between">
+                            @if (!string.IsNullOrEmpty(Model.Input?.CurrentLogoPath))
+                            {
+                                <img src="@Model.Input.CurrentLogoPath" alt="Logo preview" style="max-height: 40px; max-width: 150px; object-fit: contain;" class="bg-white rounded px-2 py-1" />
+                            }
+                            else
+                            {
+                                <span class="fw-bold" id="previewFirmName">@((Model.Input?.FirmName) ?? "Your Firm Name")</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3 text-muted">ABC Company Ltd.</h6>
+                        
+                        <!-- Sample Metrics -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded text-center">
+                                    <div class="small text-muted">Cash Balance</div>
+                                    <div class="h5 mb-0 mt-1">$45,231</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded text-center">
+                                    <div class="small text-muted">Profit (YTD)</div>
+                                    <div class="h5 mb-0 mt-1">$12,458</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info small mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Questions? Contact <strong id="previewEmail">@((Model.Input?.PrimaryContactEmail) ?? "your accountant")</strong>
+                            @if (!string.IsNullOrEmpty(Model.Input?.ContactPhone))
+                            {
+                                <br><i class="bi bi-telephone me-1"></i><span id="previewPhone">@Model.Input.ContactPhone</span>
+                            }
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Input?.FooterMessage))
+                    {
+                        <div class="card-footer text-muted small text-center" id="previewFooter">
+                            @Model.Input.FooterMessage
+                        </div>
+                    }
+                </div>
+                <p class="text-muted small mt-2 mb-0">
+                    <i class="bi bi-eye me-1"></i> This is how your branding will appear to clients
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Live preview updates
+        document.addEventListener('DOMContentLoaded', function() {
+            const firmNameInput = document.getElementById('Input_FirmName');
+            const emailInput = document.getElementById('Input_PrimaryContactEmail');
+            const phoneInput = document.getElementById('Input_ContactPhone');
+            const colorInput = document.querySelectorAll('input[id="Input_BrandColor"]')[0];
+            const footerInput = document.getElementById('Input_FooterMessage');
+            
+            const previewFirmName = document.getElementById('previewFirmName');
+            const previewEmail = document.getElementById('previewEmail');
+            const previewPhone = document.getElementById('previewPhone');
+            const previewHeader = document.getElementById('previewHeader');
+            const previewFooter = document.getElementById('previewFooter');
+            
+            if (firmNameInput && previewFirmName) {
+                firmNameInput.addEventListener('input', function() {
+                    previewFirmName.textContent = this.value || 'Your Firm Name';
+                });
+            }
+            
+            if (emailInput && previewEmail) {
+                emailInput.addEventListener('input', function() {
+                    previewEmail.textContent = this.value || 'your accountant';
+                });
+            }
+            
+            if (phoneInput && previewPhone) {
+                phoneInput.addEventListener('input', function() {
+                    if (this.value) {
+                        previewPhone.textContent = this.value;
+                        previewPhone.parentElement.style.display = 'block';
+                    } else {
+                        previewPhone.parentElement.style.display = 'none';
+                    }
+                });
+            }
+            
+            if (colorInput && previewHeader) {
+                colorInput.addEventListener('input', function() {
+                    previewHeader.style.backgroundColor = this.value;
+                });
+            }
+            
+            if (footerInput && previewFooter) {
+                footerInput.addEventListener('input', function() {
+                    if (this.value) {
+                        previewFooter.textContent = this.value;
+                        previewFooter.style.display = 'block';
+                    } else {
+                        previewFooter.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,44 +1,67 @@
 @page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Sign Up as an Accountant";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="text-center mb-4">
+            <h1 class="h2">@ViewData["Title"]</h1>
+            <p class="text-muted">Start creating white-labeled dashboards for your QuickBooks clients</p>
+        </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Input.FirmName" class="form-label">Firm Name</label>
+                        <input asp-for="Input.FirmName" class="form-control" placeholder="e.g., Smith & Associates Accounting" />
+                        <span asp-validation-for="Input.FirmName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">Email (for login)</label>
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="your@email.com" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.PrimaryContactEmail" class="form-label">Primary Contact Email</label>
+                        <input asp-for="Input.PrimaryContactEmail" class="form-control" autocomplete="email" placeholder="contact@yourfirm.com" />
+                        <div class="form-text">This email will be shown to your clients for support inquiries</div>
+                        <span asp-validation-for="Input.PrimaryContactEmail" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Password" class="form-label">Password</label>
+                        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" type="password" />
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
+                        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" type="password" />
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <button id="registerSubmit" type="submit" class="w-100 btn btn-primary btn-lg mb-3">Create Account</button>
+
+                    <p class="text-center text-muted small mb-0">
+                        Already have an account? <a asp-area="Identity" asp-page="/Account/Login">Sign in</a>
+                    </p>
+                </form>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FirmName" class="form-control" aria-required="true" placeholder="Your Firm Name" />
-                <label asp-for="Input.FirmName">Firm Name</label>
-                <span asp-validation-for="Input.FirmName" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PrimaryContactEmail" class="form-control" autocomplete="email" aria-required="true" placeholder="contact@example.com" />
-                <label asp-for="Input.PrimaryContactEmail">Primary Contact Email</label>
-                <span asp-validation-for="Input.PrimaryContactEmail" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
+        </div>
+
+        <div class="text-center mt-4">
+            <p class="text-muted small">
+                By creating an account, you agree to our Terms of Service and Privacy Policy.<br>
+                Free 30-day trial • No credit card required
+            </p>
+        </div>
     </div>
 </div>
 
