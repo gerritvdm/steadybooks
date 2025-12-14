@@ -11,13 +11,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    // Add your DbSets here
-    // Example: public DbSet<YourEntity> YourEntities { get; set; }
+    public DbSet<ClientDashboard> ClientDashboards { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configure your entities here
+        // Configure ClientDashboard
+        modelBuilder.Entity<ClientDashboard>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DashboardName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.ClientCompanyName).HasMaxLength(200);
+            entity.Property(e => e.AccessLink).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.AccessLink).IsUnique();
+            
+            // Relationship to ApplicationUser (Firm)
+            entity.HasOne(e => e.Firm)
+                .WithMany()
+                .HasForeignKey(e => e.FirmId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }

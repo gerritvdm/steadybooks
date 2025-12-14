@@ -4,43 +4,278 @@
     ViewData["Title"] = "My Dashboards";
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
+            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="h2 mb-1">My Dashboards</h1>
                     <p class="text-muted mb-0">Manage client financial dashboards</p>
                 </div>
-                <button class="btn btn-primary" disabled>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDashboardModal">
                     <i class="bi bi-plus-lg me-2"></i>Create Dashboard
                 </button>
             </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body text-center py-5">
-                    <div class="mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-clipboard-data text-muted" viewBox="0 0 16 16">
-                            <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
-                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
-                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
-                        </svg>
-                    </div>
-                    <h5>Coming Soon!</h5>
-                    <p class="text-muted mb-4">
-                        Dashboard management will be available in Sprint 3.<br>
-                        You'll be able to create and manage client dashboards here.
-                    </p>
-                    <div class="alert alert-info d-inline-block text-start">
-                        <strong>Next Steps:</strong>
-                        <ol class="mb-0 mt-2 ps-3">
-                            <li>Complete your <a asp-page="/Firm/Settings" class="alert-link">Firm Settings</a></li>
-                            <li>Connect to QuickBooks Online (Coming Soon)</li>
-                            <li>Create your first client dashboard</li>
-                        </ol>
+            <!-- Success/Error Messages -->
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>@Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (Model.Dashboards == null || !Model.Dashboards.Any())
+            {
+                <!-- Empty State -->
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-clipboard-data text-muted" viewBox="0 0 16 16">
+                                <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
+                                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
+                                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
+                            </svg>
+                        </div>
+                        <h4>No Dashboards Yet</h4>
+                        <p class="text-muted mb-4">
+                            Get started by creating your first client dashboard.<br>
+                            You'll be able to share financial insights with your clients in minutes.
+                        </p>
+                        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createDashboardModal">
+                            <i class="bi bi-plus-lg me-2"></i>Create Your First Dashboard
+                        </button>
+                        
+                        <div class="mt-4 text-start d-inline-block">
+                            <p class="text-muted mb-2"><strong>Getting Started:</strong></p>
+                            <ol class="text-muted small">
+                                <li>Create a dashboard for your client</li>
+                                <li>Configure which metrics to display</li>
+                                <li>Connect to QuickBooks Online (coming soon)</li>
+                                <li>Share a secure link with your client</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <!-- Dashboard List (Desktop: Table, Mobile: Cards) -->
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <!-- Desktop Table View -->
+                        <div class="table-responsive d-none d-lg-block">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Dashboard Name</th>
+                                        <th>Client Company</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Last Accessed</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var dashboard in Model.Dashboards)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@dashboard.DashboardName</strong>
+                                            </td>
+                                            <td>@(dashboard.ClientCompanyName ?? "—")</td>
+                                            <td>
+                                                @switch (dashboard.Status)
+                                                {
+                                                    case SteadyBooks.Models.DashboardStatus.Active:
+                                                        <span class="badge bg-success">
+                                                            <i class="bi bi-check-circle me-1"></i>Active
+                                                        </span>
+                                                        break;
+                                                    case SteadyBooks.Models.DashboardStatus.Draft:
+                                                        <span class="badge bg-secondary">
+                                                            <i class="bi bi-pencil me-1"></i>Draft
+                                                        </span>
+                                                        break;
+                                                    case SteadyBooks.Models.DashboardStatus.NeedsAttention:
+                                                        <span class="badge bg-warning text-dark">
+                                                            <i class="bi bi-exclamation-triangle me-1"></i>Needs Attention
+                                                        </span>
+                                                        break;
+                                                    case SteadyBooks.Models.DashboardStatus.Archived:
+                                                        <span class="badge bg-dark">
+                                                            <i class="bi bi-archive me-1"></i>Archived
+                                                        </span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">@dashboard.CreatedDate.ToString("MMM dd, yyyy")</small>
+                                            </td>
+                                            <td>
+                                                @if (dashboard.LastAccessedDate.HasValue)
+                                                {
+                                                    <small class="text-muted">@dashboard.LastAccessedDate.Value.ToString("MMM dd, yyyy")</small>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted">Never</small>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="/Dashboard/View/@dashboard.AccessLink" class="btn btn-outline-primary" title="View Dashboard" target="_blank">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-secondary" title="Configure" disabled>
+                                                        <i class="bi bi-gear"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-info" title="Share" disabled>
+                                                        <i class="bi bi-share"></i>
+                                                    </button>
+                                                    <form method="post" asp-page-handler="Archive" asp-route-id="@dashboard.Id" class="d-inline">
+                                                        <button type="submit" class="btn btn-outline-danger" title="Archive" onclick="return confirm('Archive this dashboard?')">
+                                                            <i class="bi bi-archive"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Mobile Card View -->
+                        <div class="d-lg-none p-3">
+                            @foreach (var dashboard in Model.Dashboards)
+                            {
+                                <div class="card mb-3 border">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="mb-1">@dashboard.DashboardName</h6>
+                                                <small class="text-muted">@(dashboard.ClientCompanyName ?? "No company name")</small>
+                                            </div>
+                                            @switch (dashboard.Status)
+                                            {
+                                                case SteadyBooks.Models.DashboardStatus.Active:
+                                                    <span class="badge bg-success">Active</span>
+                                                    break;
+                                                case SteadyBooks.Models.DashboardStatus.Draft:
+                                                    <span class="badge bg-secondary">Draft</span>
+                                                    break;
+                                                case SteadyBooks.Models.DashboardStatus.NeedsAttention:
+                                                    <span class="badge bg-warning text-dark">Needs Attention</span>
+                                                    break;
+                                                case SteadyBooks.Models.DashboardStatus.Archived:
+                                                    <span class="badge bg-dark">Archived</span>
+                                                    break;
+                                            }
+                                        </div>
+                                        <div class="small text-muted mb-3">
+                                            Created: @dashboard.CreatedDate.ToString("MMM dd, yyyy")
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <a href="/Dashboard/View/@dashboard.AccessLink" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="bi bi-eye me-1"></i>View Dashboard
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                <i class="bi bi-gear me-1"></i>Configure
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="row mt-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <h3 class="text-primary mb-0">@Model.Dashboards.Count()</h3>
+                                <small class="text-muted">Total Dashboards</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <h3 class="text-success mb-0">@Model.Dashboards.Count(d => d.Status == SteadyBooks.Models.DashboardStatus.Active)</h3>
+                                <small class="text-muted">Active</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-secondary">
+                            <div class="card-body text-center">
+                                <h3 class="text-secondary mb-0">@Model.Dashboards.Count(d => d.Status == SteadyBooks.Models.DashboardStatus.Draft)</h3>
+                                <small class="text-muted">Drafts</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-dark">
+                            <div class="card-body text-center">
+                                <h3 class="text-dark mb-0">@Model.Dashboards.Count(d => d.Status == SteadyBooks.Models.DashboardStatus.Archived)</h3>
+                                <small class="text-muted">Archived</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
+
+<!-- Create Dashboard Modal -->
+<div class="modal fade" id="createDashboardModal" tabindex="-1" aria-labelledby="createDashboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createDashboardModalLabel">
+                        <i class="bi bi-plus-circle me-2"></i>Create New Dashboard
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label asp-for="CreateInput.DashboardName" class="form-label">Dashboard Name</label>
+                        <input asp-for="CreateInput.DashboardName" class="form-control" placeholder="e.g., ABC Company Dashboard" autofocus />
+                        <span asp-validation-for="CreateInput.DashboardName" class="text-danger"></span>
+                        <div class="form-text">This is for your reference. You can change it later.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CreateInput.ClientCompanyName" class="form-label">Client Company Name <span class="text-muted">(Optional)</span></label>
+                        <input asp-for="CreateInput.ClientCompanyName" class="form-control" placeholder="e.g., ABC Pty Ltd" />
+                        <span asp-validation-for="CreateInput.ClientCompanyName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-2"></i>Create Dashboard
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

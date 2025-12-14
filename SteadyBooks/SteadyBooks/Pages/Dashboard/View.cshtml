@@ -1,0 +1,97 @@
+@page "{accessLink}"
+@model SteadyBooks.Pages.Dashboard.ViewModel
+@{
+    ViewData["Title"] = Model.Dashboard?.DashboardName ?? "Dashboard";
+    Layout = "_DashboardLayout"; // We'll create this later for client view
+}
+
+<div class="container py-4">
+    @if (Model.Dashboard == null)
+    {
+        <div class="alert alert-danger">
+            <h4>Dashboard Not Found</h4>
+            <p>The dashboard you're looking for doesn't exist or has been removed.</p>
+        </div>
+    }
+    else if (!Model.Dashboard.IsActive)
+    {
+        <div class="alert alert-warning">
+            <h4>Dashboard Unavailable</h4>
+            <p>This dashboard is currently unavailable. Please contact your accountant for assistance.</p>
+        </div>
+    }
+    else
+    {
+        <!-- Header with Branding -->
+        <div class="card shadow-sm mb-4" style="border-top: 4px solid @(Model.Dashboard.Firm.BrandColor ?? "#667eea");">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        @if (!string.IsNullOrEmpty(Model.Dashboard.Firm.LogoPath))
+                        {
+                            <img src="@Model.Dashboard.Firm.LogoPath" alt="@Model.Dashboard.Firm.FirmName" style="max-height: 50px; max-width: 250px; object-fit: contain;" class="mb-2" />
+                        }
+                        else
+                        {
+                            <h4 class="mb-2">@Model.Dashboard.Firm.FirmName</h4>
+                        }
+                        <h2 class="h4 mb-0">@Model.Dashboard.DashboardName</h2>
+                        @if (!string.IsNullOrEmpty(Model.Dashboard.ClientCompanyName))
+                        {
+                            <p class="text-muted mb-0">@Model.Dashboard.ClientCompanyName</p>
+                        }
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">Last Updated<br><strong>Coming Soon</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coming Soon Message -->
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-graph-up text-muted" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M0 0h1v15h15v1H0zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07"/>
+                    </svg>
+                </div>
+                <h4>Financial Metrics Coming Soon</h4>
+                <p class="text-muted mb-4">
+                    Your dashboard is being configured by your accountant.<br>
+                    Financial data will appear here once QuickBooks Online is connected.
+                </p>
+                
+                <div class="alert alert-info d-inline-block text-start">
+                    <strong><i class="bi bi-info-circle me-2"></i>What's Next:</strong>
+                    <ul class="mb-0 mt-2 ps-3">
+                        <li>Your accountant is configuring your dashboard</li>
+                        <li>QuickBooks Online integration is in progress</li>
+                        <li>You'll see cash balance, profit, and tax information here</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Footer -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-envelope me-2"></i>
+                    <strong>Questions about your finances?</strong><br>
+                    Contact: <a href="mailto:@Model.Dashboard.Firm.PrimaryContactEmail">@Model.Dashboard.Firm.PrimaryContactEmail</a>
+                    @if (!string.IsNullOrEmpty(Model.Dashboard.Firm.ContactPhone))
+                    {
+                        <br><i class="bi bi-telephone me-2"></i>@Model.Dashboard.Firm.ContactPhone
+                    }
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Dashboard.Firm.FooterMessage))
+            {
+                <div class="card-footer text-center text-muted small">
+                    @Model.Dashboard.Firm.FooterMessage
+                </div>
+            }
+        </div>
+    }
+</div>
