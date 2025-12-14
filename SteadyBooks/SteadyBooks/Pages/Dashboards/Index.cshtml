@@ -140,9 +140,9 @@
                                                     <a href="/Dashboards/Configure/@dashboard.Id" class="btn btn-outline-secondary" title="Configure">
                                                         <i class="bi bi-gear"></i>
                                                     </a>
-                                                    <button type="button" class="btn btn-outline-info" title="Share" disabled>
+                                                    <a href="/Dashboards/Invite/@dashboard.Id" class="btn btn-outline-info" title="Share">
                                                         <i class="bi bi-share"></i>
-                                                    </button>
+                                                    </a>
                                                     <form method="post" asp-page-handler="Archive" asp-route-id="@dashboard.Id" class="d-inline">
                                                         <button type="submit" class="btn btn-outline-danger" title="Archive" onclick="return confirm('Archive this dashboard?')">
                                                             <i class="bi bi-archive"></i>
@@ -192,6 +192,9 @@
                                             </a>
                                             <a href="/Dashboards/Configure/@dashboard.Id" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-gear me-1"></i>Configure
+                                            </a>
+                                            <a href="/Dashboards/Invite/@dashboard.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-share me-1"></i>Share
                                             </a>
                                         </div>
                                     </div>

@@ -1,0 +1,294 @@
+@page "{id:int}"
+@model SteadyBooks.Pages.Dashboards.InviteModel
+@{
+    ViewData["Title"] = "Share Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <!-- Header with Back Button -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="/Dashboards" class="btn btn-outline-secondary me-3">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div class="flex-grow-1">
+                    <h1 class="h2 mb-1">Share Dashboard</h1>
+                    <p class="text-muted mb-0">@Model.Dashboard?.DashboardName</p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>@Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Secure Access Link Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-link-45deg me-2"></i>Secure Access Link
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        Share this secure link with your client. They can view their dashboard without logging in.
+                    </p>
+
+                    <!-- Access Link Display -->
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="accessLinkInput" 
+                               value="@($"{Request.Scheme}://{Request.Host}/Dashboard/View/{Model.Dashboard?.AccessLink}")" 
+                               readonly>
+                        <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard(event)" id="copyButton">
+                            <i class="bi bi-clipboard me-1"></i>Copy
+                        </button>
+                        <a href="/Dashboard/View/@Model.Dashboard?.AccessLink" target="_blank" class="btn btn-outline-secondary">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                        </a>
+                    </div>
+
+                    <!-- Access Info -->
+                    <div class="alert alert-info small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Security:</strong> This link is unique and unguessable. Only share it with your client.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Invitation Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-envelope me-2"></i>Email Invitation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="SendEmail">
+                        <div class="mb-3">
+                            <label asp-for="EmailInput.RecipientEmail" class="form-label">Client Email Address</label>
+                            <input asp-for="EmailInput.RecipientEmail" class="form-control" type="email" placeholder="client@example.com" />
+                            <span asp-validation-for="EmailInput.RecipientEmail" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EmailInput.RecipientName" class="form-label">Client Name <span class="text-muted">(Optional)</span></label>
+                            <input asp-for="EmailInput.RecipientName" class="form-control" placeholder="John Doe" />
+                            <span asp-validation-for="EmailInput.RecipientName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EmailInput.CustomMessage" class="form-label">Personal Message <span class="text-muted">(Optional)</span></label>
+                            <textarea asp-for="EmailInput.CustomMessage" class="form-control" rows="3" 
+                                      placeholder="Add a personal message to your client..."></textarea>
+                            <span asp-validation-for="EmailInput.CustomMessage" class="text-danger"></span>
+                        </div>
+
+                        <!-- Email Preview -->
+                        <div class="card bg-light border mb-3">
+                            <div class="card-body small">
+                                <strong>Email Preview:</strong>
+                                <hr>
+                                <p>Hi @(string.IsNullOrEmpty(Model.EmailInput.RecipientName) ? "[Client Name]" : Model.EmailInput.RecipientName),</p>
+                                <p>Your financial dashboard is ready to view.</p>
+                                @if (!string.IsNullOrEmpty(Model.EmailInput.CustomMessage))
+                                {
+                                    <p class="fst-italic">@Model.EmailInput.CustomMessage</p>
+                                }
+                                <p>Click the button below to access your dashboard:</p>
+                                <p><a href="#" class="btn btn-sm btn-primary">[View Dashboard Button]</a></p>
+                                <p class="text-muted mb-0">
+                                    <small>Prepared by @Model.FirmName</small><br>
+                                    <small>Questions? Contact @Model.FirmEmail</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning small mb-3">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            <strong>Note:</strong> Email functionality is in development. For now, copy the link above and send it manually.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" disabled>
+                            <i class="bi bi-send me-2"></i>Send Email Invitation (Coming Soon)
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Advanced Settings Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-shield-lock me-2"></i>Advanced Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Password Protection -->
+                    <div class="mb-4">
+                        <h6>Password Protection <span class="badge bg-secondary">Coming Soon</span></h6>
+                        <p class="text-muted small mb-2">Add an extra layer of security by requiring a password to access the dashboard.</p>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                            <i class="bi bi-lock me-1"></i>Set Password
+                        </button>
+                    </div>
+
+                    <!-- Regenerate Link -->
+                    <div class="mb-4">
+                        <h6>Regenerate Access Link</h6>
+                        <p class="text-muted small mb-2">
+                            Generate a new access link. The old link will no longer work.
+                            <strong class="text-danger">Use this if you believe the link has been compromised.</strong>
+                        </p>
+                        <form method="post" asp-page-handler="RegenerateLink" onsubmit="return confirm('Regenerate link? The old link will stop working.')">
+                            <button type="submit" class="btn btn-sm btn-warning">
+                                <i class="bi bi-arrow-repeat me-1"></i>Regenerate Link
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Revoke Access -->
+                    <div>
+                        <h6 class="text-danger">Revoke Access</h6>
+                        <p class="text-muted small mb-2">
+                            Archive this dashboard and disable the access link.
+                            <strong>The client will no longer be able to view this dashboard.</strong>
+                        </p>
+                        <form method="post" asp-page-handler="RevokeAccess" onsubmit="return confirm('Revoke access and archive this dashboard? This cannot be undone.')">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="bi bi-x-circle me-1"></i>Revoke Access & Archive
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Stats Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>Usage Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <h4 class="text-primary mb-1">@Model.Dashboard?.Status.ToString()</h4>
+                                <small class="text-muted">Status</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <h4 class="text-success mb-1">
+                                    @if (Model.Dashboard?.LastAccessedDate != null)
+                                    {
+                                        @((DateTime.UtcNow - Model.Dashboard.LastAccessedDate.Value).Days)
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </h4>
+                                <small class="text-muted">Days Since Last View</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <h4 class="mb-1">@Model.Dashboard?.CreatedDate.ToString("MMM dd")</h4>
+                                <small class="text-muted">Created</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <h4 class="mb-1">
+                                    @if (Model.Dashboard?.LastAccessedDate != null)
+                                    {
+                                        @Model.Dashboard.LastAccessedDate.Value.ToString("MMM dd")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Never</span>
+                                    }
+                                </h4>
+                                <small class="text-muted">Last Viewed</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between">
+                <a href="/Dashboards" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboards
+                </a>
+                <a href="/Dashboards/Configure/@Model.Dashboard?.Id" class="btn btn-outline-primary">
+                    <i class="bi bi-gear me-2"></i>Configure Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        function copyToClipboard(event) {
+            const input = document.getElementById('accessLinkInput');
+            const button = event.currentTarget;
+            
+            // Modern clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(input.value).then(function() {
+                    showCopySuccess(button);
+                }).catch(function(err) {
+                    console.error('Copy failed:', err);
+                    fallbackCopy(input, button);
+                });
+            } else {
+                // Fallback for older browsers
+                fallbackCopy(input, button);
+            }
+        }
+        
+        function fallbackCopy(input, button) {
+            try {
+                input.select();
+                input.setSelectionRange(0, 99999); // For mobile devices
+                document.execCommand('copy');
+                showCopySuccess(button);
+            } catch (err) {
+                alert('Failed to copy link. Please copy manually.');
+                console.error('Copy failed:', err);
+            }
+        }
+        
+        function showCopySuccess(button) {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-check me-1"></i>Copied!';
+            button.classList.remove('btn-outline-primary');
+            button.classList.add('btn-success');
+            button.disabled = true;
+            
+            setTimeout(function() {
+                button.innerHTML = originalHTML;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-primary');
+                button.disabled = false;
+            }, 2000);
+        }
+    </script>
+}
