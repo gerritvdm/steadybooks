@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<ClientDashboard> ClientDashboards { get; set; } = default!;
+    public DbSet<DashboardConfiguration> DashboardConfigurations { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +32,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany()
                 .HasForeignKey(e => e.FirmId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            // Relationship to DashboardConfiguration (one-to-one)
+            entity.HasOne(e => e.Configuration)
+                .WithOne(c => c.ClientDashboard)
+                .HasForeignKey<DashboardConfiguration>(c => c.ClientDashboardId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Configure DashboardConfiguration
+        modelBuilder.Entity<DashboardConfiguration>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CustomTitle).HasMaxLength(200);
+            entity.Property(e => e.WelcomeMessage).HasMaxLength(500);
         });
     }
 }

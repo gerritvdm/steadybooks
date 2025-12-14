@@ -208,3 +208,48 @@ input[type="file"]::file-selector-button {
 input[type="file"]::file-selector-button:hover {
   background-color: #e9ecef;
 }
+
+/* Configuration Page Styles */
+.form-check.card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #dee2e6;
+}
+
+.form-check.card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-check.card.border-primary {
+  background-color: #e7f1ff;
+  border-color: #0d6efd !important;
+}
+
+.form-check.card .form-check-input {
+  margin-top: 0.25rem;
+}
+
+.form-check.card .form-check-label {
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Widget Toggle Cards */
+.form-check-input:checked ~ .form-check-label {
+  color: #0d6efd;
+}
+
+/* Sticky sidebar adjustment for config page */
+@media (min-width: 992px) {
+  .sticky-lg-top {
+    top: 20px;
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 991px) {
+  .form-check.card {
+    margin-bottom: 0.5rem;
+  }
+}

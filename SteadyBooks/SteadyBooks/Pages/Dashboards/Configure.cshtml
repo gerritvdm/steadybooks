@@ -1,0 +1,288 @@
+@page "{id:int}"
+@model SteadyBooks.Pages.Dashboards.ConfigureModel
+@{
+    ViewData["Title"] = "Configure Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Configuration Form -->
+        <div class="col-lg-8 col-xl-7">
+            <!-- Header with Back Button -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="/Dashboards" class="btn btn-outline-secondary me-3">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div class="flex-grow-1">
+                    <h1 class="h2 mb-1">Configure Dashboard</h1>
+                    <p class="text-muted mb-0">@Model.Dashboard?.DashboardName</p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>@Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Dashboard Information -->
+                        <h5 class="mb-3">Dashboard Information</h5>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Input.DashboardName" class="form-label">Dashboard Name</label>
+                            <input asp-for="Input.DashboardName" class="form-control" />
+                            <span asp-validation-for="Input.DashboardName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.ClientCompanyName" class="form-label">Client Company Name <span class="text-muted">(Optional)</span></label>
+                            <input asp-for="Input.ClientCompanyName" class="form-control" />
+                            <span asp-validation-for="Input.ClientCompanyName" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Date Range Selection -->
+                        <h5 class="mb-3">Date Range</h5>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Select Date Range</label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check card p-3 @(Model.Input.DateRange == SteadyBooks.Models.DateRangeType.ThisMonth ? "border-primary" : "")">
+                                        <input class="form-check-input" type="radio" asp-for="Input.DateRange" value="@SteadyBooks.Models.DateRangeType.ThisMonth" id="dateRangeThisMonth">
+                                        <label class="form-check-label" for="dateRangeThisMonth">
+                                            <strong>This Month</strong>
+                                            <br><small class="text-muted">@DateTime.Now.ToString("MMM yyyy")</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check card p-3 @(Model.Input.DateRange == SteadyBooks.Models.DateRangeType.LastMonth ? "border-primary" : "")">
+                                        <input class="form-check-input" type="radio" asp-for="Input.DateRange" value="@SteadyBooks.Models.DateRangeType.LastMonth" id="dateRangeLastMonth">
+                                        <label class="form-check-label" for="dateRangeLastMonth">
+                                            <strong>Last Month</strong>
+                                            <br><small class="text-muted">@DateTime.Now.AddMonths(-1).ToString("MMM yyyy")</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check card p-3 @(Model.Input.DateRange == SteadyBooks.Models.DateRangeType.YearToDate ? "border-primary" : "")">
+                                        <input class="form-check-input" type="radio" asp-for="Input.DateRange" value="@SteadyBooks.Models.DateRangeType.YearToDate" id="dateRangeYTD">
+                                        <label class="form-check-label" for="dateRangeYTD">
+                                            <strong>Year to Date</strong>
+                                            <br><small class="text-muted">Jan - @DateTime.Now.ToString("MMM")</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check card p-3 @(Model.Input.DateRange == SteadyBooks.Models.DateRangeType.Custom ? "border-primary" : "")" title="Custom range coming soon">
+                                        <input class="form-check-input" type="radio" asp-for="Input.DateRange" value="@SteadyBooks.Models.DateRangeType.Custom" id="dateRangeCustom" disabled>
+                                        <label class="form-check-label text-muted" for="dateRangeCustom">
+                                            <strong>Custom</strong>
+                                            <br><small>Coming soon</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Widget Visibility Toggles -->
+                        <h5 class="mb-3">Dashboard Widgets</h5>
+                        <p class="text-muted small mb-3">Select which financial metrics to display to your client</p>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border @(Model.Input.ShowCashBalance ? "border-primary bg-light" : "")">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" asp-for="Input.ShowCashBalance" id="showCashBalance">
+                                            <label class="form-check-label" for="showCashBalance">
+                                                <strong><i class="bi bi-cash-coin text-success me-2"></i>Cash Balance</strong>
+                                                <br><small class="text-muted">Current cash position</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border @(Model.Input.ShowProfit ? "border-primary bg-light" : "")">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" asp-for="Input.ShowProfit" id="showProfit">
+                                            <label class="form-check-label" for="showProfit">
+                                                <strong><i class="bi bi-graph-up text-primary me-2"></i>Profit</strong>
+                                                <br><small class="text-muted">Revenue minus expenses</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border @(Model.Input.ShowTaxesDue ? "border-primary bg-light" : "")">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" asp-for="Input.ShowTaxesDue" id="showTaxesDue">
+                                            <label class="form-check-label" for="showTaxesDue">
+                                                <strong><i class="bi bi-receipt text-warning me-2"></i>Taxes Due</strong>
+                                                <br><small class="text-muted">Tax liability</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border @(Model.Input.ShowOutstandingInvoices ? "border-primary bg-light" : "")">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" asp-for="Input.ShowOutstandingInvoices" id="showOutstandingInvoices">
+                                            <label class="form-check-label" for="showOutstandingInvoices">
+                                                <strong><i class="bi bi-file-earmark-text text-info me-2"></i>Outstanding Invoices</strong>
+                                                <br><small class="text-muted">Amounts owed to you</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- QuickBooks Account Mapping (Placeholder) -->
+                        <h5 class="mb-3">QuickBooks Account Mapping</h5>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Connect QuickBooks Online</strong>
+                            <p class="mb-0 mt-2">Account mapping will be available once you connect to QuickBooks Online. This allows you to specify which QuickBooks accounts should be used for calculating each metric.</p>
+                            <button type="button" class="btn btn-sm btn-primary mt-3" disabled>
+                                <i class="bi bi-plus-circle me-2"></i>Connect QuickBooks (Coming Soon)
+                            </button>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Custom Display Settings -->
+                        <h5 class="mb-3">Display Settings <span class="badge bg-secondary">Optional</span></h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.CustomTitle" class="form-label">Custom Dashboard Title</label>
+                            <input asp-for="Input.CustomTitle" class="form-control" placeholder="Leave blank to use dashboard name" />
+                            <div class="form-text">Override the dashboard name shown to clients</div>
+                            <span asp-validation-for="Input.CustomTitle" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.WelcomeMessage" class="form-label">Welcome Message</label>
+                            <textarea asp-for="Input.WelcomeMessage" class="form-control" rows="2" placeholder="e.g., Welcome to your financial dashboard"></textarea>
+                            <div class="form-text">Optional message displayed at the top of the dashboard</div>
+                            <span asp-validation-for="Input.WelcomeMessage" class="text-danger"></span>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/Dashboards" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-lg me-2"></i>Save Configuration
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="col-lg-4 col-xl-5">
+            <div class="sticky-lg-top" style="top: 20px;">
+                <h5 class="mb-3">Preview</h5>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <strong>Client View Preview</strong>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-3">@(Model.Input.CustomTitle ?? Model.Dashboard?.DashboardName ?? "Dashboard")</h6>
+                        
+                        @if (!string.IsNullOrEmpty(Model.Input.WelcomeMessage))
+                        {
+                            <div class="alert alert-info small mb-3">
+                                @Model.Input.WelcomeMessage
+                            </div>
+                        }
+
+                        <div class="row g-2">
+                            @if (Model.Input.ShowCashBalance)
+                            {
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded text-center">
+                                        <small class="text-muted">Cash Balance</small>
+                                        <div class="fw-bold">$XX,XXX</div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.Input.ShowProfit)
+                            {
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded text-center">
+                                        <small class="text-muted">Profit</small>
+                                        <div class="fw-bold">$XX,XXX</div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.Input.ShowTaxesDue)
+                            {
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded text-center">
+                                        <small class="text-muted">Taxes Due</small>
+                                        <div class="fw-bold">$XX,XXX</div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.Input.ShowOutstandingInvoices)
+                            {
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded text-center">
+                                        <small class="text-muted">Invoices</small>
+                                        <div class="fw-bold">$XX,XXX</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="alert alert-secondary small mt-3 mb-0">
+                            <i class="bi bi-calendar me-1"></i>
+                            Date Range: <strong>@Model.Input.DateRange</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-muted small mt-2 mb-0">
+                    <i class="bi bi-eye me-1"></i>This preview shows widget visibility only. Actual data will appear when QuickBooks is connected.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

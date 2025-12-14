@@ -25,8 +25,8 @@ public class ClientDashboard
     public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
     public DateTime? LastAccessedDate { get; set; }
     
-    // Navigation property for configuration (will create later)
-    // public DashboardConfiguration? Configuration { get; set; }
+    // Navigation property for configuration
+    public DashboardConfiguration? Configuration { get; set; }
 }
 
 public enum DashboardStatus
