@@ -1,0 +1,412 @@
+@page
+@model SteadyBooks.Pages.Account.SettingsModel
+@{
+    ViewData["Title"] = "Account Settings";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <!-- Header -->
+            <div class="mb-4">
+                <h1 class="h2 mb-1">Account Settings</h1>
+                <p class="text-muted mb-0">Manage your subscription and account preferences</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>@Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row g-4">
+                <!-- Left Column: Plan & Usage -->
+                <div class="col-lg-8">
+                    <!-- Current Plan Card -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-star me-2"></i>Current Plan
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h3 class="mb-2">@Model.CurrentPlan.Name</h3>
+                                    <p class="text-muted mb-3">@Model.CurrentPlan.Description</p>
+                                    
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        <span>@Model.CurrentPlan.MaxDashboards dashboards included</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        <span>White-label branding</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        <span>Secure client access</span>
+                                    </div>
+                                    @if (Model.CurrentPlan.Name == "Free Trial")
+                                    {
+                                        <div class="alert alert-info small mt-3 mb-0">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            <strong>Trial ends:</strong> @Model.TrialEndsDate.ToString("MMMM dd, yyyy") 
+                                            (@Model.DaysRemainingInTrial days remaining)
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <div class="display-4 mb-2">
+                                        @if (Model.CurrentPlan.Price == 0)
+                                        {
+                                            <span class="text-success">Free</span>
+                                        }
+                                        else
+                                        {
+                                            <span>$@Model.CurrentPlan.Price</span>
+                                        }
+                                    </div>
+                                    @if (Model.CurrentPlan.Price > 0)
+                                    {
+                                        <small class="text-muted">/month</small>
+                                    }
+                                    
+                                    @if (Model.CurrentPlan.Name == "Free Trial")
+                                    {
+                                        <button type="button" class="btn btn-success mt-3 w-100" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                                            <i class="bi bi-arrow-up-circle me-2"></i>Upgrade Now
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Usage Statistics Card -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-bar-chart me-2"></i>Usage Statistics
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted">Active Dashboards</span>
+                                        <strong class="h4 mb-0">@Model.UsageStats.ActiveDashboards</strong>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: @Model.UsageStats.DashboardUsagePercentage%;" 
+                                             aria-valuenow="@Model.UsageStats.DashboardUsagePercentage" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">@Model.UsageStats.ActiveDashboards of @Model.CurrentPlan.MaxDashboards</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted">Total Dashboards</span>
+                                        <strong class="h4 mb-0">@Model.UsageStats.TotalDashboards</strong>
+                                    </div>
+                                    <small class="text-muted">Includes drafts and archived</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">Client Views (30 days)</span>
+                                        <strong class="h4 mb-0">@Model.UsageStats.ClientViewsLast30Days</strong>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">Account Created</span>
+                                        <strong>@Model.AccountCreatedDate.ToString("MMM dd, yyyy")</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (Model.UsageStats.ActiveDashboards >= Model.CurrentPlan.MaxDashboards)
+                            {
+                                <div class="alert alert-warning small mt-3 mb-0">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    <strong>Limit reached:</strong> You've reached your dashboard limit. Upgrade to create more dashboards.
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Account Information Card -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-person-circle me-2"></i>Account Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Email Address</label>
+                                    <p class="mb-0"><strong>@Model.UserEmail</strong></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Firm Name</label>
+                                    <p class="mb-0"><strong>@Model.FirmName</strong></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Primary Contact</label>
+                                    <p class="mb-0">@Model.PrimaryContactEmail</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Account Status</label>
+                                    <p class="mb-0">
+                                        <span class="badge bg-success">Active</span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="d-flex gap-2">
+                                <a asp-page="/Firm/Settings" class="btn btn-outline-primary">
+                                    <i class="bi bi-pencil me-1"></i>Edit Firm Settings
+                                </a>
+                                <a asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="btn btn-outline-secondary">
+                                    <i class="bi bi-key me-1"></i>Change Password
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone Card -->
+                    <div class="card shadow-sm border-danger mb-4">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Danger Zone
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>Delete Account</h6>
+                            <p class="text-muted mb-3">
+                                Permanently delete your account and all associated data. This action cannot be undone.
+                                All dashboards will be permanently deleted.
+                            </p>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                <i class="bi bi-trash me-2"></i>Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Quick Actions & Help -->
+                <div class="col-lg-4">
+                    <!-- Quick Actions Card -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightning me-2"></i>Quick Actions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a asp-page="/Dashboards/Index" class="btn btn-outline-primary">
+                                    <i class="bi bi-clipboard-data me-2"></i>My Dashboards
+                                </a>
+                                <a asp-page="/Firm/Settings" class="btn btn-outline-secondary">
+                                    <i class="bi bi-palette me-2"></i>Firm Branding
+                                </a>
+                                <button type="button" class="btn btn-outline-info" disabled>
+                                    <i class="bi bi-download me-2"></i>Export Data (Coming Soon)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help & Support Card -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-question-circle me-2"></i>Help & Support
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-3">Need help with your account?</p>
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-primary" disabled>
+                                    <i class="bi bi-book me-2"></i>Documentation
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" disabled>
+                                    <i class="bi bi-chat-dots me-2"></i>Contact Support
+                                </button>
+                            </div>
+                            
+                            <hr>
+                            
+                            <small class="text-muted">
+                                <strong>Version:</strong> 1.0.0 (MVP)<br>
+                                <strong>Last Login:</strong> @DateTime.Now.ToString("MMM dd, h:mm tt")
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Feature Roadmap Card -->
+                    <div class="card shadow-sm border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-rocket me-2"></i>Coming Soon
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-clock text-warning me-2"></i>
+                                    QuickBooks Online Integration
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-clock text-warning me-2"></i>
+                                    Real-time Data Sync
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-clock text-warning me-2"></i>
+                                    Email Invitations
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-clock text-warning me-2"></i>
+                                    Interactive Charts
+                                </li>
+                                <li class="mb-0">
+                                    <i class="bi bi-clock text-warning me-2"></i>
+                                    Mobile App
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="modal fade" id="upgradeModal" tabindex="-1" aria-labelledby="upgradeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="upgradeModalLabel">
+                    <i class="bi bi-arrow-up-circle me-2"></i>Upgrade Your Plan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h4>Professional</h4>
+                                <div class="display-4 my-3">$29</div>
+                                <p class="text-muted">/month</p>
+                                <hr>
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>10 Dashboards</li>
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>QuickBooks Integration</li>
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>White-label Branding</li>
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Email Support</li>
+                                </ul>
+                                <button class="btn btn-outline-primary w-100" disabled>Coming Soon</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white text-center">
+                                <strong>Most Popular</strong>
+                            </div>
+                            <div class="card-body text-center">
+                                <h4>Business</h4>
+                                <div class="display-4 my-3">$79</div>
+                                <p class="text-muted">/month</p>
+                                <hr>
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Unlimited Dashboards</li>
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>QuickBooks Integration</li>
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>White-label Branding</li>
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Priority Support</li>
+                                    <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Custom Reports</li>
+                                </ul>
+                                <button class="btn btn-primary w-100" disabled>Coming Soon</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Payment processing with Stripe will be available soon. For now, enjoy your free trial!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Delete Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="DeleteAccount">
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <strong>Warning:</strong> This action cannot be undone!
+                    </div>
+                    <p>Deleting your account will:</p>
+                    <ul>
+                        <li>Permanently delete all your dashboards</li>
+                        <li>Remove all client access links</li>
+                        <li>Delete your firm branding</li>
+                        <li>Cancel your subscription</li>
+                    </ul>
+                    <p class="mb-3">Type <strong>DELETE</strong> to confirm:</p>
+                    <input type="text" class="form-control" name="confirmText" id="confirmDeleteText" required placeholder="Type DELETE" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="confirmDeleteButton" disabled>
+                        <i class="bi bi-trash me-2"></i>Delete My Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Enable delete button only when "DELETE" is typed
+        document.getElementById('confirmDeleteText')?.addEventListener('input', function(e) {
+            const button = document.getElementById('confirmDeleteButton');
+            if (e.target.value === 'DELETE') {
+                button.disabled = false;
+            } else {
+                button.disabled = true;
+            }
+        });
+    </script>
+}
