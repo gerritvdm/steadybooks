@@ -25,10 +25,33 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
         });
 });
 
+// Configure cookies for HTTPS
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+});
+
 // Add Identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
-    options.SignIn.RequireConfirmedAccount = false)  // Set to false for development
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Configure QuickBooks Settings
+builder.Services.Configure<QuickBooksSettings>(
+    builder.Configuration.GetSection("QuickBooks"));
 
 // Add Polly Resilience Services
 builder.Services.AddSingleton<IResiliencePipelineService, ResiliencePipelineService>();
@@ -39,6 +62,9 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add File Upload Service
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
+// Add QuickBooks OAuth Service
+builder.Services.AddScoped<IQuickBooksOAuthService, QuickBooksOAuthService>();
 
 // Add HttpClient with Polly policies
 builder.Services.AddHttpClient("SteadyBooksClient")
@@ -57,6 +83,10 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();

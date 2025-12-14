@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SteadyBooks.Data;
 using SteadyBooks.Models;
+using SteadyBooks.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace SteadyBooks.Pages.Dashboards
@@ -14,19 +15,23 @@ namespace SteadyBooks.Pages.Dashboards
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IQuickBooksOAuthService _oauthService;
         private readonly ILogger<ConfigureModel> _logger;
 
         public ConfigureModel(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
+            IQuickBooksOAuthService oauthService,
             ILogger<ConfigureModel> logger)
         {
             _context = context;
             _userManager = userManager;
+            _oauthService = oauthService;
             _logger = logger;
         }
 
         public ClientDashboard? Dashboard { get; set; }
+        public QuickBooksConnection? QuickBooksConnection { get; set; }
 
         [BindProperty]
         public ConfigurationInput Input { get; set; } = new();
@@ -83,9 +88,10 @@ namespace SteadyBooks.Pages.Dashboards
 
             try
             {
-                // Load dashboard with configuration
+                // Load dashboard with configuration and QuickBooks connection
                 Dashboard = await _context.ClientDashboards
                     .Include(d => d.Configuration)
+                    .Include(d => d.QuickBooksConnection)
                     .FirstOrDefaultAsync(d => d.Id == id && d.FirmId == user.Id);
 
                 if (Dashboard == null)
@@ -94,6 +100,8 @@ namespace SteadyBooks.Pages.Dashboards
                     ErrorMessage = "Dashboard not found.";
                     return RedirectToPage("/Dashboards/Index");
                 }
+
+                QuickBooksConnection = Dashboard.QuickBooksConnection;
 
                 // Populate input model from dashboard and configuration
                 Input = new ConfigurationInput
@@ -197,6 +205,93 @@ namespace SteadyBooks.Pages.Dashboards
                 ErrorMessage = "An error occurred while saving the configuration. Please try again.";
                 await OnGetAsync(id);
                 return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostConnectQuickBooksAsync(int id)
+        {
+            _logger.LogInformation("=== OnPostConnectQuickBooksAsync called with id={DashboardId} ===", id);
+            
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("User not found");
+                return NotFound("User not found.");
+            }
+
+            _logger.LogInformation("User found: {UserId}", user.Id);
+
+            try
+            {
+                var dashboard = await _context.ClientDashboards
+                    .FirstOrDefaultAsync(d => d.Id == id && d.FirmId == user.Id);
+
+                if (dashboard == null)
+                {
+                    _logger.LogWarning("Dashboard {DashboardId} not found for user {UserId}", id, user.Id);
+                    ErrorMessage = "Dashboard not found.";
+                    return RedirectToPage("/Dashboards/Index");
+                }
+
+                _logger.LogInformation("Dashboard found: {DashboardId}", dashboard.Id);
+
+                // Generate random state for OAuth security
+                var state = Guid.NewGuid().ToString();
+                
+                // Get authorization URL
+                var authUrl = _oauthService.GetAuthorizationUrl(id, state);
+
+                _logger.LogInformation("Generated auth URL: {AuthUrl}", authUrl);
+                _logger.LogInformation("Redirecting to QuickBooks OAuth for dashboard {DashboardId}", id);
+
+                // Redirect to QuickBooks authorization
+                return Redirect(authUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error initiating QuickBooks connection for dashboard {DashboardId}", id);
+                ErrorMessage = "An error occurred while connecting to QuickBooks. Please try again.";
+                return RedirectToPage(new { id });
+            }
+        }
+
+        public async Task<IActionResult> OnPostDisconnectQuickBooksAsync(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            try
+            {
+                var dashboard = await _context.ClientDashboards
+                    .Include(d => d.QuickBooksConnection)
+                    .FirstOrDefaultAsync(d => d.Id == id && d.FirmId == user.Id);
+
+                if (dashboard == null)
+                {
+                    _logger.LogWarning("Dashboard {DashboardId} not found for user {UserId}", id, user.Id);
+                    ErrorMessage = "Dashboard not found.";
+                    return RedirectToPage("/Dashboards/Index");
+                }
+
+                if (dashboard.QuickBooksConnection != null)
+                {
+                    _context.QuickBooksConnections.Remove(dashboard.QuickBooksConnection);
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("QuickBooks disconnected from dashboard {DashboardId}", id);
+                    SuccessMessage = "QuickBooks has been disconnected. Dashboard will now use mock data.";
+                }
+
+                return RedirectToPage(new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error disconnecting QuickBooks from dashboard {DashboardId}", id);
+                ErrorMessage = "An error occurred while disconnecting QuickBooks.";
+                return RedirectToPage(new { id });
             }
         }
     }

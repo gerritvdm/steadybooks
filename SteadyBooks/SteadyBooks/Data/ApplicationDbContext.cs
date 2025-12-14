@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<ClientDashboard> ClientDashboards { get; set; } = default!;
     public DbSet<DashboardConfiguration> DashboardConfigurations { get; set; } = default!;
+    public DbSet<QuickBooksConnection> QuickBooksConnections { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +39,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithOne(c => c.ClientDashboard)
                 .HasForeignKey<DashboardConfiguration>(c => c.ClientDashboardId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            // Relationship to QuickBooksConnection (one-to-one)
+            entity.HasOne(e => e.QuickBooksConnection)
+                .WithOne(q => q.ClientDashboard)
+                .HasForeignKey<QuickBooksConnection>(q => q.ClientDashboardId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Configure DashboardConfiguration
@@ -46,6 +53,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.CustomTitle).HasMaxLength(200);
             entity.Property(e => e.WelcomeMessage).HasMaxLength(500);
+        });
+
+        // Configure QuickBooksConnection
+        modelBuilder.Entity<QuickBooksConnection>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RealmId).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.AccessToken).IsRequired();
+            entity.Property(e => e.RefreshToken).IsRequired();
+            entity.HasIndex(e => e.RealmId);
         });
     }
 }

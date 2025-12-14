@@ -37,7 +37,7 @@
 
             <div class="card shadow-sm mb-4">
                 <div class="card-body p-4">
-                    <form method="post">
+                    <form method="post" asp-route-id="@Model.Dashboard.Id">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <!-- Dashboard Information -->
@@ -168,20 +168,6 @@
 
                         <hr class="my-4">
 
-                        <!-- QuickBooks Account Mapping (Placeholder) -->
-                        <h5 class="mb-3">QuickBooks Account Mapping</h5>
-                        
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <strong>Connect QuickBooks Online</strong>
-                            <p class="mb-0 mt-2">Account mapping will be available once you connect to QuickBooks Online. This allows you to specify which QuickBooks accounts should be used for calculating each metric.</p>
-                            <button type="button" class="btn btn-sm btn-primary mt-3" disabled>
-                                <i class="bi bi-plus-circle me-2"></i>Connect QuickBooks (Coming Soon)
-                            </button>
-                        </div>
-
-                        <hr class="my-4">
-
                         <!-- Custom Display Settings -->
                         <h5 class="mb-3">Display Settings <span class="badge bg-secondary">Optional</span></h5>
 
@@ -207,6 +193,72 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- QuickBooks Connection Card (Separate from main form) -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">QuickBooks Online Connection</h5>
+                    
+                    @if (Model.QuickBooksConnection != null && Model.QuickBooksConnection.IsActive)
+                    {
+                        <!-- Connected State -->
+                        <div class="card border-success">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                    <div class="mb-2 mb-md-0">
+                                        <h6 class="mb-1">
+                                            <i class="bi bi-check-circle text-success me-2"></i>Connected
+                                        </h6>
+                                        <p class="mb-1"><strong>@Model.QuickBooksConnection.CompanyName</strong></p>
+                                        <small class="text-muted">
+                                            Connected on @Model.QuickBooksConnection.ConnectedDate.ToString("MMM dd, yyyy")
+                                        </small>
+                                        @if (Model.QuickBooksConnection.LastSyncDate != null)
+                                        {
+                                            <br><small class="text-muted">Last synced: @Model.QuickBooksConnection.LastSyncDate.Value.ToString("MMM dd, yyyy h:mm tt")</small>
+                                        }
+                                    </div>
+                                    <div>
+                                        <form method="post" asp-page-handler="DisconnectQuickBooks" asp-route-id="@Model.Dashboard.Id">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Disconnect from QuickBooks? The dashboard will switch to mock data.')">
+                                                <i class="bi bi-x-circle me-1"></i>Disconnect
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                @if (Model.QuickBooksConnection.RefreshTokenExpiresAt < DateTime.UtcNow.AddDays(7))
+                                {
+                                    <div class="alert alert-warning small mt-3 mb-0">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        <strong>Refresh token expiring soon.</strong> You'll need to reconnect to maintain access to QuickBooks data.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Not Connected State -->
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Connect to QuickBooks Online</strong>
+                            <p class="mb-2 mt-2">Connect your QuickBooks Online company to pull real financial data for this dashboard.</p>
+                            <ul class="small mb-3">
+                                <li>Real-time cash balance</li>
+                                <li>Accurate profit & loss</li>
+                                <li>Outstanding invoices</li>
+                                <li>Tax liability estimates</li>
+                            </ul>
+                            <form method="post" asp-page-handler="ConnectQuickBooks" asp-route-id="@Model.Dashboard.Id" class="d-inline">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-link-45deg me-2"></i>Connect to QuickBooks Online
+                                </button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
