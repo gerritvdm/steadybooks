@@ -9,7 +9,7 @@
         <div class="col-lg-8 col-xl-7">
             <!-- Header with Back Button -->
             <div class="d-flex align-items-center mb-4">
-                <a href="/Dashboards" class="btn btn-outline-secondary me-3">
+                <a asp-page="/Dashboards/Index" class="btn btn-outline-secondary me-3">
                     <i class="bi bi-arrow-left"></i>
                 </a>
                 <div class="flex-grow-1">
@@ -231,10 +231,10 @@
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between">
-                <a href="/Dashboards" class="btn btn-outline-secondary">
+                <a asp-page="/Dashboards/Index" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-2"></i>Back to Dashboards
                 </a>
-                <a href="/Dashboards/Configure/@Model.Dashboard?.Id" class="btn btn-outline-primary">
+                <a asp-page="/Dashboards/Configure" asp-route-id="@Model.Dashboard?.Id" class="btn btn-outline-primary">
                     <i class="bi bi-gear me-2"></i>Configure Dashboard
                 </a>
             </div>
