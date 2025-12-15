@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SteadyBooks.Data;
 using SteadyBooks.Models;
+using SteadyBooks.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace SteadyBooks.Pages.Dashboards
@@ -14,15 +15,18 @@ namespace SteadyBooks.Pages.Dashboards
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailService _emailService;
         private readonly ILogger<InviteModel> _logger;
 
         public InviteModel(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
+            IEmailService emailService,
             ILogger<InviteModel> logger)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -91,7 +95,6 @@ namespace SteadyBooks.Pages.Dashboards
 
         public async Task<IActionResult> OnPostSendEmailAsync(int id)
         {
-            // Email functionality stub - will implement with SendGrid/SMTP later
             await OnGetAsync(id);
             
             if (!ModelState.IsValid)
@@ -99,13 +102,49 @@ namespace SteadyBooks.Pages.Dashboards
                 return Page();
             }
 
-            // TODO: Implement email sending
-            // For now, just show a message
-            _logger.LogInformation("Email invitation requested for dashboard {DashboardId} to {Email}", 
-                id, EmailInput.RecipientEmail);
+            if (Dashboard == null)
+            {
+                ErrorMessage = "Dashboard not found.";
+                return RedirectToPage("/Dashboards/Index");
+            }
 
-            SuccessMessage = "Email functionality is coming soon. Please copy the link and send it manually.";
-            return RedirectToPage(new { id });
+            try
+            {
+                // Generate dashboard link
+                var dashboardLink = Url.Page(
+                    "/Dashboard/View",
+                    pageHandler: null,
+                    values: new { accessLink = Dashboard.AccessLink },
+                    protocol: Request.Scheme);
+
+                // Send email
+                var emailSent = await _emailService.SendDashboardInviteEmailAsync(
+                    EmailInput.RecipientEmail,
+                    EmailInput.RecipientName ?? "Client",
+                    FirmName ?? "Your Accountant",
+                    dashboardLink!,
+                    EmailInput.CustomMessage);
+
+                if (emailSent)
+                {
+                    _logger.LogInformation("Dashboard invite email sent successfully to {Email} for dashboard {DashboardId}", 
+                        EmailInput.RecipientEmail, id);
+                    SuccessMessage = $"Invitation sent successfully to {EmailInput.RecipientEmail}!";
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to send dashboard invite email to {Email}", EmailInput.RecipientEmail);
+                    ErrorMessage = "Email is not configured. Please copy the link and send it manually, or configure email settings.";
+                }
+
+                return RedirectToPage(new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending dashboard invite email");
+                ErrorMessage = "An error occurred while sending the email. Please try again.";
+                return Page();
+            }
         }
 
         public async Task<IActionResult> OnPostRegenerateLinkAsync(int id)

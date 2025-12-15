@@ -40,12 +40,16 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add Identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
 {
-    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedAccount = true; // Require email confirmation
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
+    
+    // Email confirmation settings
+    options.User.RequireUniqueEmail = true;
+    options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -62,6 +66,9 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add File Upload Service
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
+// Add Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add QuickBooks OAuth Service
 builder.Services.AddScoped<IQuickBooksOAuthService, QuickBooksOAuthService>();
