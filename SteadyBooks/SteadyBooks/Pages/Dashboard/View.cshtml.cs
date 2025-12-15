@@ -3,25 +3,33 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SteadyBooks.Data;
 using SteadyBooks.Models;
+using SteadyBooks.Services;
 
 namespace SteadyBooks.Pages.Dashboard
 {
     public class ViewModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IQuickBooksDataSyncService _syncService;
         private readonly ILogger<ViewModel> _logger;
 
-        public ViewModel(ApplicationDbContext context, ILogger<ViewModel> logger)
+        public ViewModel(
+            ApplicationDbContext context,
+            IQuickBooksDataSyncService syncService,
+            ILogger<ViewModel> logger)
         {
             _context = context;
+            _syncService = syncService;
             _logger = logger;
         }
 
         public ClientDashboard? Dashboard { get; set; }
-        public MockFinancialData MockData { get; set; } = new();
+        public FinancialData Data { get; set; } = new();
         public string DateRangeDisplay { get; set; } = string.Empty;
+        public bool IsRealData { get; set; }
+        public DateTime? LastSyncDate { get; set; }
 
-        public class MockFinancialData
+        public class FinancialData
         {
             public decimal CashBalance { get; set; }
             public decimal CashChange { get; set; }
@@ -46,16 +54,25 @@ namespace SteadyBooks.Pages.Dashboard
 
             try
             {
-                // Load dashboard with firm details and configuration
+                // Load dashboard with firm details, configuration, and QuickBooks connection
                 Dashboard = await _context.ClientDashboards
                     .Include(d => d.Firm)
                     .Include(d => d.Configuration)
+                    .Include(d => d.QuickBooksConnection)
                     .FirstOrDefaultAsync(d => d.AccessLink == accessLink);
 
                 if (Dashboard == null)
                 {
                     _logger.LogWarning("Dashboard not found for access link {AccessLink}", accessLink);
                     return Page(); // Will show "not found" message
+                }
+
+                // Check if dashboard is active
+                if (!Dashboard.IsActive || Dashboard.Status == DashboardStatus.Archived)
+                {
+                    _logger.LogWarning("Dashboard {DashboardId} is not active", Dashboard.Id);
+                    Dashboard = null; // Will show "unavailable" message
+                    return Page();
                 }
 
                 // Update last accessed date
@@ -65,11 +82,39 @@ namespace SteadyBooks.Pages.Dashboard
                 // Generate date range display
                 DateRangeDisplay = GetDateRangeDisplay(Dashboard.Configuration?.DateRange ?? DateRangeType.ThisMonth);
 
-                // Generate mock financial data
-                MockData = GenerateMockData(Dashboard.Configuration?.DateRange ?? DateRangeType.ThisMonth);
+                // Try to get real data from QuickBooks if connected
+                if (Dashboard.QuickBooksConnection != null && Dashboard.QuickBooksConnection.IsActive)
+                {
+                    _logger.LogInformation("Fetching real QuickBooks data for dashboard {DashboardId}", Dashboard.Id);
+                    
+                    var financialData = await _syncService.SyncDashboardDataAsync(Dashboard.Id);
+                    
+                    if (financialData != null)
+                    {
+                        IsRealData = true;
+                        LastSyncDate = Dashboard.QuickBooksConnection.LastSyncDate;
+                        Data = MapRealDataToViewModel(financialData);
+                        
+                        _logger.LogInformation("Using real QuickBooks data for dashboard {DashboardId}", Dashboard.Id);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to fetch real data, falling back to mock data for dashboard {DashboardId}", 
+                            Dashboard.Id);
+                        IsRealData = false;
+                        Data = GenerateMockData(Dashboard.Configuration?.DateRange ?? DateRangeType.ThisMonth);
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("No QuickBooks connection, using mock data for dashboard {DashboardId}", 
+                        Dashboard.Id);
+                    IsRealData = false;
+                    Data = GenerateMockData(Dashboard.Configuration?.DateRange ?? DateRangeType.ThisMonth);
+                }
 
-                _logger.LogInformation("Dashboard {DashboardId} accessed via link {AccessLink}", 
-                    Dashboard.Id, accessLink);
+                _logger.LogInformation("Dashboard {DashboardId} accessed via link, Real data: {IsReal}", 
+                    Dashboard.Id, IsRealData);
 
                 return Page();
             }
@@ -78,6 +123,24 @@ namespace SteadyBooks.Pages.Dashboard
                 _logger.LogError(ex, "Error loading dashboard with access link {AccessLink}", accessLink);
                 return Page();
             }
+        }
+
+        private FinancialData MapRealDataToViewModel(DashboardFinancialData realData)
+        {
+            return new FinancialData
+            {
+                CashBalance = realData.CashBalance,
+                CashChange = realData.CashChange,
+                Profit = realData.Profit,
+                ProfitChange = realData.ProfitChange,
+                TaxesDue = realData.TaxesDue,
+                OutstandingInvoices = realData.OutstandingInvoices,
+                InvoiceCount = 0, // Can add invoice count query if needed
+                Revenue = realData.Revenue,
+                Expenses = realData.Expenses,
+                Margin = realData.Margin,
+                BankAccountCount = 0 // Can add bank account query if needed
+            };
         }
 
         private string GetDateRangeDisplay(DateRangeType dateRange)
@@ -93,7 +156,7 @@ namespace SteadyBooks.Pages.Dashboard
             };
         }
 
-        private MockFinancialData GenerateMockData(DateRangeType dateRange)
+        private FinancialData GenerateMockData(DateRangeType dateRange)
         {
             // Generate realistic mock data that varies by date range
             var random = new Random(Dashboard?.Id ?? 0); // Use dashboard ID as seed for consistency
@@ -110,7 +173,7 @@ namespace SteadyBooks.Pages.Dashboard
             var profit = baseRevenue - baseExpenses;
             var margin = baseRevenue > 0 ? Math.Round((profit / baseRevenue) * 100, 1) : 0;
 
-            return new MockFinancialData
+            return new FinancialData
             {
                 // Cash Balance
                 CashBalance = 45231 + random.Next(-5000, 15000),

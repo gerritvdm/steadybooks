@@ -59,7 +59,7 @@ public class FileUploadService : IFileUploadService
             }
 
             var relativePath = $"/uploads/logos/{fileName}";
-            _logger.LogInformation("Logo uploaded successfully for user {UserId}: {Path}", userId, relativePath);
+            _logger.LogInformation("Logo uploaded successfully for user {UserId}", userId);
             
             return relativePath;
         }

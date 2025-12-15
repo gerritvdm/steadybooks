@@ -66,6 +66,12 @@ builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 // Add QuickBooks OAuth Service
 builder.Services.AddScoped<IQuickBooksOAuthService, QuickBooksOAuthService>();
 
+// Add QuickBooks API Service
+builder.Services.AddScoped<IQuickBooksApiService, QuickBooksApiService>();
+
+// Add QuickBooks Data Sync Service
+builder.Services.AddScoped<IQuickBooksDataSyncService, QuickBooksDataSyncService>();
+
 // Add HttpClient with Polly policies
 builder.Services.AddHttpClient("SteadyBooksClient")
     .AddPolicyHandler(GetRetryPolicy())

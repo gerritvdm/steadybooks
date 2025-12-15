@@ -76,6 +76,28 @@ else
             </div>
         }
 
+        <!-- Data Source Indicator -->
+        @if (Model.IsRealData)
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong>Live Data:</strong> Connected to QuickBooks Online
+                @if (Model.LastSyncDate.HasValue)
+                {
+                    <small class="ms-2">• Last synced: @Model.LastSyncDate.Value.ToString("MMM dd, h:mm tt")</small>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Demo Data:</strong> Showing sample data. Connect to QuickBooks for live financial information.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
         <!-- Financial Metrics Cards -->
         <div class="row g-4 mb-4">
             @if (Model.Dashboard.Configuration?.ShowCashBalance ?? true)
@@ -87,10 +109,13 @@ else
                                 <i class="bi bi-cash-coin text-success" style="font-size: 2.5rem;"></i>
                             </div>
                             <h6 class="text-muted text-uppercase small mb-2">Cash Balance</h6>
-                            <h2 class="mb-1">$@Model.MockData.CashBalance.ToString("N0")</h2>
-                            <small class="text-success">
-                                <i class="bi bi-arrow-up"></i> @Model.MockData.CashChange%
-                            </small>
+                            <h2 class="mb-1">$@Model.Data.CashBalance.ToString("N0")</h2>
+                            @if (Model.Data.CashChange != 0)
+                            {
+                                <small class="@(Model.Data.CashChange >= 0 ? "text-success" : "text-danger")">
+                                    <i class="bi bi-arrow-@(Model.Data.CashChange >= 0 ? "up" : "down")"></i> @Math.Abs(Model.Data.CashChange)%
+                                </small>
+                            }
                         </div>
                     </div>
                 </div>
@@ -105,10 +130,13 @@ else
                                 <i class="bi bi-graph-up text-primary" style="font-size: 2.5rem;"></i>
                             </div>
                             <h6 class="text-muted text-uppercase small mb-2">Profit</h6>
-                            <h2 class="mb-1">$@Model.MockData.Profit.ToString("N0")</h2>
-                            <small class="@(Model.MockData.ProfitChange >= 0 ? "text-success" : "text-danger")">
-                                <i class="bi bi-arrow-@(Model.MockData.ProfitChange >= 0 ? "up" : "down")"></i> @Model.MockData.ProfitChange%
-                            </small>
+                            <h2 class="mb-1">$@Model.Data.Profit.ToString("N0")</h2>
+                            @if (Model.Data.ProfitChange != 0)
+                            {
+                                <small class="@(Model.Data.ProfitChange >= 0 ? "text-success" : "text-danger")">
+                                    <i class="bi bi-arrow-@(Model.Data.ProfitChange >= 0 ? "up" : "down")"></i> @Math.Abs(Model.Data.ProfitChange).ToString("N1")%
+                                </small>
+                            }
                         </div>
                     </div>
                 </div>
@@ -123,7 +151,7 @@ else
                                 <i class="bi bi-receipt text-warning" style="font-size: 2.5rem;"></i>
                             </div>
                             <h6 class="text-muted text-uppercase small mb-2">Taxes Due</h6>
-                            <h2 class="mb-1">$@Model.MockData.TaxesDue.ToString("N0")</h2>
+                            <h2 class="mb-1">$@Model.Data.TaxesDue.ToString("N0")</h2>
                             <small class="text-muted">Estimated</small>
                         </div>
                     </div>
@@ -139,8 +167,11 @@ else
                                 <i class="bi bi-file-earmark-text text-info" style="font-size: 2.5rem;"></i>
                             </div>
                             <h6 class="text-muted text-uppercase small mb-2">Outstanding Invoices</h6>
-                            <h2 class="mb-1">$@Model.MockData.OutstandingInvoices.ToString("N0")</h2>
-                            <small class="text-muted">@Model.MockData.InvoiceCount invoices</small>
+                            <h2 class="mb-1">$@Model.Data.OutstandingInvoices.ToString("N0")</h2>
+                            @if (Model.Data.InvoiceCount > 0)
+                            {
+                                <small class="text-muted">@Model.Data.InvoiceCount invoices</small>
+                            }
                         </div>
                     </div>
                 </div>
@@ -174,20 +205,23 @@ else
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                             <span class="text-muted">Revenue</span>
-                            <strong class="text-success">$@Model.MockData.Revenue.ToString("N0")</strong>
+                            <strong class="text-success">$@Model.Data.Revenue.ToString("N0")</strong>
                         </div>
                         <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                             <span class="text-muted">Expenses</span>
-                            <strong class="text-danger">$@Model.MockData.Expenses.ToString("N0")</strong>
+                            <strong class="text-danger">$@Model.Data.Expenses.ToString("N0")</strong>
                         </div>
                         <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                             <span class="text-muted">Margin</span>
-                            <strong>@Model.MockData.Margin%</strong>
+                            <strong>@Model.Data.Margin.ToString("N1")%</strong>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Bank Accounts</span>
-                            <strong>@Model.MockData.BankAccountCount</strong>
-                        </div>
+                        @if (Model.Data.BankAccountCount > 0)
+                        {
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Bank Accounts</span>
+                                <strong>@Model.Data.BankAccountCount</strong>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

@@ -102,7 +102,13 @@ namespace SteadyBooks.Pages.Firm
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model state invalid when saving settings");
+                // Reload user to prevent null reference
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser != null && Input != null)
+                {
+                    Input.CurrentLogoPath = currentUser.LogoPath;
+                }
+                
                 return Page();
             }
 
@@ -110,24 +116,26 @@ namespace SteadyBooks.Pages.Firm
             if (user == null)
             {
                 _logger.LogWarning("User not found when saving settings");
-                return NotFound("User not found.");
+                ErrorMessage = "User not found. Please log in again.";
+                return RedirectToPage("/Identity/Account/Login");
             }
 
             try
             {
                 // Update basic fields
-                user.FirmName = Input.FirmName;
-                user.PrimaryContactEmail = Input.PrimaryContactEmail;
+                user.FirmName = Input.FirmName ?? user.FirmName ?? "";
+                user.PrimaryContactEmail = Input.PrimaryContactEmail ?? user.PrimaryContactEmail ?? "";
                 user.ContactPhone = Input.ContactPhone;
-                user.BrandColor = Input.BrandColor;
+                user.BrandColor = Input.BrandColor ?? "#667eea";
                 user.FooterMessage = Input.FooterMessage;
 
-                // Handle logo upload
-                if (Input.LogoFile != null)
+                // Handle logo upload if file provided
+                if (Input.LogoFile != null && Input.LogoFile.Length > 0)
                 {
                     if (!_fileUploadService.IsValidLogoFile(Input.LogoFile))
                     {
                         ModelState.AddModelError("Input.LogoFile", "Invalid logo file. Please upload a PNG, JPG, or SVG file under 2MB.");
+                        Input.CurrentLogoPath = user.LogoPath;
                         return Page();
                     }
 
@@ -139,6 +147,7 @@ namespace SteadyBooks.Pages.Firm
 
                     // Upload new logo
                     var logoPath = await _fileUploadService.UploadLogoAsync(Input.LogoFile, user.Id);
+                    
                     if (logoPath != null)
                     {
                         user.LogoPath = logoPath;
@@ -147,12 +156,16 @@ namespace SteadyBooks.Pages.Firm
                     }
                     else
                     {
+                        _logger.LogError("Failed to upload logo for user {UserId}", user.Id);
                         ModelState.AddModelError("Input.LogoFile", "Failed to upload logo. Please try again.");
+                        Input.CurrentLogoPath = user.LogoPath;
                         return Page();
                     }
                 }
 
+                // Save to database
                 var result = await _userManager.UpdateAsync(user);
+                
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User {UserId} updated firm settings successfully", user.Id);
@@ -160,25 +173,36 @@ namespace SteadyBooks.Pages.Firm
                     return RedirectToPage();
                 }
 
+                // Handle save errors
                 foreach (var error in result.Errors)
                 {
                     _logger.LogWarning("Error updating user {UserId}: {Error}", user.Id, error.Description);
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
+
+                Input.CurrentLogoPath = user.LogoPath;
+                return Page();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Exception occurred while updating firm settings for user {UserId}", user?.Id);
+                _logger.LogError(ex, "Error updating firm settings for user {UserId}", user.Id);
                 ErrorMessage = "An error occurred while saving settings. Please try again.";
-            }
+                
+                // Try to reload user data
+                try
+                {
+                    if (Input != null)
+                    {
+                        Input.CurrentLogoPath = user.LogoPath;
+                    }
+                }
+                catch
+                {
+                    // Ignore errors during error recovery
+                }
 
-            // Reload current values if save failed
-            if (!string.IsNullOrEmpty(user.LogoPath))
-            {
-                Input.CurrentLogoPath = user.LogoPath;
+                return Page();
             }
-
-            return Page();
         }
 
         public async Task<IActionResult> OnPostRemoveLogoAsync()
