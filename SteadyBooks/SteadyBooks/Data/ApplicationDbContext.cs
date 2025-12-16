@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ClientDashboard> ClientDashboards { get; set; } = default!;
     public DbSet<DashboardConfiguration> DashboardConfigurations { get; set; } = default!;
     public DbSet<QuickBooksConnection> QuickBooksConnections { get; set; } = default!;
+    public DbSet<Subscription> Subscriptions { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -64,6 +65,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.AccessToken).IsRequired();
             entity.Property(e => e.RefreshToken).IsRequired();
             entity.HasIndex(e => e.RealmId);
+        });
+
+        // Configure Subscription
+        modelBuilder.Entity<Subscription>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StripeCustomerId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.StripeSubscriptionId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.StripePriceId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Currency).IsRequired().HasMaxLength(3);
+            entity.HasIndex(e => e.StripeCustomerId);
+            entity.HasIndex(e => e.StripeSubscriptionId).IsUnique();
+            
+            // Relationship to ApplicationUser (one-to-one)
+            entity.HasOne(e => e.User)
+                .WithOne(u => u.Subscription)
+                .HasForeignKey<Subscription>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

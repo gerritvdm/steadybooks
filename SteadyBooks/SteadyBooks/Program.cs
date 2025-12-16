@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddControllers(); // Add controllers for Stripe webhook
 
 // Add DbContext with Polly retry for transient failures
 builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
@@ -57,6 +58,10 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 builder.Services.Configure<QuickBooksSettings>(
     builder.Configuration.GetSection("QuickBooks"));
 
+// Configure Stripe Settings
+builder.Services.Configure<StripeSettings>(
+    builder.Configuration.GetSection("Stripe"));
+
 // Add Polly Resilience Services
 builder.Services.AddSingleton<IResiliencePipelineService, ResiliencePipelineService>();
 builder.Services.AddScoped<IHttpClientService, HttpClientService>();
@@ -69,6 +74,9 @@ builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
 // Add Email Service
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Add Stripe Service
+builder.Services.AddScoped<IStripeService, StripeService>();
 
 // Add QuickBooks OAuth Service
 builder.Services.AddScoped<IQuickBooksOAuthService, QuickBooksOAuthService>();
@@ -112,6 +120,7 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
+app.MapControllers(); // Map controllers for Stripe webhook
 
 app.Run();
 

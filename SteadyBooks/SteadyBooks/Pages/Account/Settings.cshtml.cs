@@ -33,6 +33,9 @@ namespace SteadyBooks.Pages.Account
         public string UserEmail { get; set; } = string.Empty;
         public string FirmName { get; set; } = string.Empty;
         public string PrimaryContactEmail { get; set; } = string.Empty;
+        public string? LogoPath { get; set; }
+        public string? BrandColor { get; set; }
+        public string? FooterMessage { get; set; }
         public DateTime AccountCreatedDate { get; set; }
         public DateTime TrialEndsDate { get; set; }
         public int DaysRemainingInTrial { get; set; }
@@ -76,6 +79,11 @@ namespace SteadyBooks.Pages.Account
                 FirmName = user.FirmName ?? string.Empty;
                 PrimaryContactEmail = user.PrimaryContactEmail ?? string.Empty;
                 AccountCreatedDate = user.CreatedDate;
+                
+                // Load branding information
+                LogoPath = user.LogoPath;
+                BrandColor = user.BrandColor ?? "#667eea";
+                FooterMessage = user.FooterMessage;
 
                 // Calculate trial info
                 TrialEndsDate = AccountCreatedDate.AddDays(30);

@@ -1,0 +1,239 @@
+@page
+@model SteadyBooks.Pages.Account.PricingModel
+@{
+    ViewData["Title"] = "Choose Your Plan";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 mb-3">Choose Your Plan</h1>
+        <p class="lead text-muted">Start your 14-day free trial. No credit card required.</p>
+        
+        <!-- Billing Toggle -->
+        <div class="d-flex justify-content-center align-items-center mt-4">
+            <span class="me-3">Monthly</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="billingToggle" onchange="toggleBilling()">
+                <label class="form-check-label" for="billingToggle"></label>
+            </div>
+            <span class="ms-3">Annual <span class="badge bg-success">Save 20%</span></span>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4 justify-content-center">
+        <!-- Free Trial Plan -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title">Free Trial</h3>
+                    <p class="text-muted">Perfect to get started</p>
+                    <div class="mb-4">
+                        <span class="display-4">$0</span>
+                        <span class="text-muted">/month</span>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>3 Client Dashboards</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>All Features Included</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>30-day trial</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>No credit card required</li>
+                    </ul>
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary w-100">
+                        Get Started Free
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional Plan -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow">
+                <div class="card-body p-4">
+                    <h3 class="card-title">Professional</h3>
+                    <p class="text-muted">For growing firms</p>
+                    <div class="mb-4">
+                        <span class="display-4 monthly-price">$29</span>
+                        <span class="display-4 yearly-price d-none">$23</span>
+                        <span class="text-muted">/month</span>
+                        <br><small class="text-muted yearly-price d-none">Billed annually at $278</small>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>10 Client Dashboards</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>QuickBooks Integration</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>White-label Branding</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Email Support</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>14-day free trial</li>
+                    </ul>
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <form method="post" asp-page-handler="Subscribe" class="monthly-form">
+                            <input type="hidden" name="plan" value="Professional" />
+                            <input type="hidden" name="interval" value="Month" />
+                            <button type="submit" class="btn btn-primary w-100">Choose Professional</button>
+                        </form>
+                        <form method="post" asp-page-handler="Subscribe" class="yearly-form d-none">
+                            <input type="hidden" name="plan" value="Professional" />
+                            <input type="hidden" name="interval" value="Year" />
+                            <button type="submit" class="btn btn-primary w-100">Choose Professional</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary w-100">
+                            Start Free Trial
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Plan -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow-lg border-primary">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <strong><i class="bi bi-star-fill me-2"></i>Most Popular</strong>
+                </div>
+                <div class="card-body p-4">
+                    <h3 class="card-title">Business</h3>
+                    <p class="text-muted">For established firms</p>
+                    <div class="mb-4">
+                        <span class="display-4 monthly-price">$79</span>
+                        <span class="display-4 yearly-price d-none">$63</span>
+                        <span class="text-muted">/month</span>
+                        <br><small class="text-muted yearly-price d-none">Billed annually at $758</small>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><strong>Unlimited</strong> Dashboards</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>QuickBooks Integration</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>White-label Branding</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><strong>Priority Support</strong></li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Custom Reports</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>14-day free trial</li>
+                    </ul>
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <form method="post" asp-page-handler="Subscribe" class="monthly-form">
+                            <input type="hidden" name="plan" value="Business" />
+                            <input type="hidden" name="interval" value="Month" />
+                            <button type="submit" class="btn btn-primary w-100">Choose Business</button>
+                        </form>
+                        <form method="post" asp-page-handler="Subscribe" class="yearly-form d-none">
+                            <input type="hidden" name="plan" value="Business" />
+                            <input type="hidden" name="interval" value="Year" />
+                            <button type="submit" class="btn btn-primary w-100">Choose Business</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary w-100">
+                            Start Free Trial
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="row mt-5">
+        <div class="col-lg-10 offset-lg-1">
+            <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            How does the free trial work?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Start with a 30-day free trial on the Free plan (3 dashboards). When you upgrade to Professional or Business, you get an additional 14-day free trial. No credit card required for the initial trial.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            Can I change plans later?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Yes! You can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            What payment methods do you accept?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            We accept all major credit cards through Stripe, our secure payment processor.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            Can I cancel anytime?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Absolutely. Cancel anytime from your account settings. You'll continue to have access until the end of your current billing period.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trust Badges -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <p class="text-muted small mb-3">Trusted by accountants nationwide</p>
+            <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap">
+                <span class="text-muted"><i class="bi bi-shield-check me-2"></i>Secure Payments via Stripe</span>
+                <span class="text-muted"><i class="bi bi-lock-fill me-2"></i>Bank-Level Security</span>
+                <span class="text-muted"><i class="bi bi-headset me-2"></i>24/7 Support</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleBilling() {
+            const isYearly = document.getElementById('billingToggle').checked;
+            
+            // Toggle prices
+            document.querySelectorAll('.monthly-price').forEach(el => {
+                el.classList.toggle('d-none', isYearly);
+            });
+            document.querySelectorAll('.yearly-price').forEach(el => {
+                el.classList.toggle('d-none', !isYearly);
+            });
+            
+            // Toggle forms
+            document.querySelectorAll('.monthly-form').forEach(el => {
+                el.classList.toggle('d-none', isYearly);
+            });
+            document.querySelectorAll('.yearly-form').forEach(el => {
+                el.classList.toggle('d-none', !isYearly);
+            });
+        }
+    </script>
+}
